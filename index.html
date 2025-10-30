@@ -30,19 +30,18 @@
         }
 
         /* --- ZALLY'S IMAGE IS EMBEDDED HERE --- */
-        #zally {
-            width: 64px; 
-            height: 64px;
-            position: absolute;
-            bottom: 64px; 
-            left: 80px;
-            z-index: 10;
-            transition: left 0.1s linear, transform 0.2s ease-out;
-            /* Base64 PNG string */
-            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAyRJREFUeJztm01uwjAQRmN6gESJk2CjQEuCpUAPgZ6EnoQeA0cOkXgEcgR6AnQEOgQyQ6qEgiU5sWzHxJLkPSSTlPwnn48/sSQyMif/8+IYgP9PQBGAEcARwBHAEYARwBGAEcARwBGAEcARwBGAEcARwBGAEcARwBGAEcARwBGAEcARwBGAEWDmAIyMa5rGGI/H2/S2y8vL21we75TRNP1vEnhARESISL+I6BWR7zVNa91sNrtoNBrtL9kRkVEiPmmak8mEw+Fw9wJiz3w+PyMiC2NcPzI+B0BmMpnsG4AXAD4AcADgTACeAlgGcNf1k5tGo5FlWa+qBw8AghBCeClEOK9CWpYl4mg0GrqG+vj4eA4AExGteFEUfSLiOwA/AHwE8B3Aoih6KpfLBYBHdRwWAMiylouIiEiIiLcBfASwLIt2YyYimciyLKIo+rL3/g+MiIjYAPDnRL+qVgSApmniGI/HBxHxhYj/vH9/T0TE433/DwA+RLSva1wXAMCMYRiIyFsiXpRluVgsFm8AYBGxB4B/IvqmaR49Pj7+MQA2qtaBSA/dAhBR0v/K2g0AsixL67rur9vY2NjY2Njo9no9AGzbto/T09MbmUxeA/D1Gv+/Ly8vN5vN1iLGGI/Hk/P5/AsAFgA8RPS01nUH0jFGIpI/AHiIaGOM/c61LMs2iqJflmV1TdP8bABsiOg7kWdZ1o8dHx+fAbCva11LkiQi2ohooij6vM/n0/e/3mAw6NptNptHAF4hItcR0dUQwjHcde1+sNhstp/P50vA+0XkXkQ0GIbxLQBTAFwFsFgs3o2NjVUR0fdgMMix2+1+vVKpXKdPn74R0bquKwB+AagFMMbYt2378Nra2tpvAcg/wuFwnwDkXdcVSJJkPQCfARzXdd+IiH0iEiPa6LquYxgGjuM4AB/SNJ90XfeIiIcjIyPjBwA+iujpdDq/URQ9EtF2HMchjDHeBuCrzWY7M5/PX/cR0fQ8z/u+PyMi+0Uke573S61KqOrD8/yXiD6J6O3t7S/y+fxdAPBIRES0QkT7vu+XiEjf9/2fAEYARwBHAEcARgBHAEcARwBHAEcARgBHAEcARgBHAEcARgBHAEcARgBHAEcARgBHAEcARgDH8X+J6wCxvL23GAAAAABJRU5ErkJggg==');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
+       #zally {
+    width: 64px; 
+    height: 64px;
+    position: absolute;
+    bottom: 64px; 
+    left: 80px;
+    z-index: 10;
+    transition: left 0.1s linear, transform 0.2s ease-out;
+    background-image: url('zally.png'); /* <<< QUESTA RIGA È LA MODIFICA >>> */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
         }
         
         @keyframes zally-jump {
