@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zally's Prompting Adventure - World 1</title>
+    <!-- Import Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Import Google Font 'Press Start 2P' -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #5c94fc; /* Sky color */
+            overflow: hidden; 
+        }
+        .game-world {
+            width: 2000px; 
+            height: 100vh;
+            position: relative;
+        }
+        .ground-block {
+            background-color: #e27525; /* Ground color */
+            border: 4px solid black;
+            width: 64px;
+            height: 64px;
+        }
+
+        /* --- ZALLY'S IMAGE IS EMBEDDED HERE --- */
+        #zally {
+            width: 64px; 
+            height: 64px;
+            position: absolute;
+            bottom: 64px; 
+            left: 80px;
+            z-index: 10;
+            transition: left 0.1s linear, transform 0.2s ease-out;
+            /* Base64 PNG string */
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAyRJREFUeJztm01uwjAQRmN6gESJk2CjQEuCpUAPgZ6EnoQeA0cOkXgEcgR6AnQEOgQyQ6qEgiU5sWzHxJLkPSSTlPwnn48/sSQyMif/8+IYgP9PQBGAEcARwBHAEYARwBGAEcARwBGAEcARwBGAEcARwBGAEcARwBGAEcARwBGAEcARwBGAEWDmAIyMa5rGGI/H2/S2y8vL21we75TRNP1vEnhARESISL+I6BWR7zVNa91sNrtoNBrtL9kRkVEiPmmak8mEw+Fw9wJiz3w+PyMiC2NcPzI+B0BmMpnsG4AXAD4AcADgTACeAlgGcNf1k5tGo5FlWa+qBw8AghBCeClEOK9CWpYl4mg0GrqG+vj4eA4AExGteFEUfSLiOwA/AHwE8B3Aoih6KpfLBYBHdRwWAMiylouIiEiIiLcBfASwLIt2YyYimciyLKIo+rL3/g+MiIjYAPDnRL+qVgSApmniGI/HBxHxhYj/vH9/T0TE433/DwA+RLSva1wXAMCMYRiIyFsiXpRluVgsFm8AYBGxB4B/IvqmaR49Pj7+MQA2qtaBSA/dAhBR0v/K2g0AsixL67rur9vY2NjY2Njo9no9AGzbto/T09MbmUxeA/D1Gv+/Ly8vN5vN1iLGGI/Hk/P5/AsAFgA8RPS01nUH0jFGIpI/AHiIaGOM/c61LMs2iqJflmV1TdP8bABsiOg7kWdZ1o8dHx+fAbCva11LkiQi2ohooij6vM/n0/e/3mAw6NptNptHAF4hItcR0dUQwjHcde1+sNhstp/P50vA+0XkXkQ0GIbxLQBTAFwFsFgs3o2NjVUR0fdgMMix2+1+vVKpXKdPn74R0bquKwB+AagFMMbYt2378Nra2tpvAcg/wuFwnwDkXdcVSJJkPQCfARzXdd+IiH0iEiPa6LquYxgGjuM4AB/SNJ90XfeIiIcjIyPjBwA+iujpdDq/URQ9EtF2HMchjDHeBuCrzWY7M5/PX/cR0fQ8z/u+PyMi+0Uke573S61KqOrD8/yXiD6J6O3t7S/y+fxdAPBIRES0QkT7vu+XiEjf9/2fAEYARwBHAEcARgBHAEcARwBHAEcARgBHAEcARgBHAEcARgBHAEcARgBHAEcARgBHAEcARgDH8X+J6wCxvL23GAAAAABJRU5ErkJggg==');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        @keyframes zally-jump {
+            0%   { transform: translateY(0); }
+            50%  { transform: translateY(-50px); }
+            100% { transform: translateY(0); }
+        }
+        .jumping {
+            animation: zally-jump 0.4s ease-out;
+        }
+
+        .trampoline {
+            width: 96px;
+            height: 48px;
+            background-color: #2dbd2d; /* Green */
+            border: 4px solid black;
+            position: absolute;
+            bottom: 64px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            text-align: center;
+            line-height: 1.2;
+            font-size: 10px;
+            transition: transform 0.1s ease;
+        }
+        .trampoline:hover {
+            transform: scale(1.05);
+        }
+
+        .cloud {
+            width: 128px;
+            height: 64px;
+            background-color: white;
+            border: 4px solid black;
+            border-radius: 20px; /* <-- Corretto qui (rimosso "Grounded") */
+            position: absolute;
+            top: 100px;
+        }
+
+        .modal-pixel {
+            font-family: 'Inter', sans-serif; 
+            border: 4px solid black;
+            box-shadow: 8px 8px 0px black;
+        }
+        .modal-header-pixel {
+             font-family: 'Press Start 2P', cursive;
+             border-bottom: 4px solid black;
+             background-color: #f87d00;
+             color: white;
+             text-shadow: 2px 2px 0px black;
+        }
+        .modal-button-pixel {
+            font-family: 'Press Start 2P', cursive;
+            border: 4px solid black;
+            box-shadow: 4px 4px 0px black;
+            transition: all 0.1s ease;
+        }
+        .modal-button-pixel:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px black;
+        }
+    </style>
+</head>
+<body class="m-0 p-0">
+
+    <div class="fixed top-0 left-0 w-full bg-black text-white p-4 z-50 text-center text-sm md:text-base">
+        Zally's Prompting Adventure - WORLD 1: The Basics. Use ⬅️ and ➡️ keys to move!
+    </div>
+
+    <div class="game-world" id="game-world">
+        
+        <div class="cloud" style="left: 200px; top: 150px;"></div>
+        <div class="cloud" style="left: 700px; top: 100px; width: 160px;"></div>
+        <div class="cloud" style="left: 1200px; top: 200px;"></div>
+        <div class="cloud" style="left: 1700px; top: 120px; width: 160px;"></div>
+
+        <div id="zally" title="This is Zally!"></div>
+
+        <div class="trampoline challenge-trigger" data-challenge-id="1" style="left: 300px;">
+            Challenge 1: THE TASK
+        </div>
+        <div class="trampoline challenge-trigger" data-challenge-id="2" style="left: 600px;">
+            Challenge 2: THE CONTEXT
+        </div>
+        <div class="trampoline challenge-trigger" data-challenge-id="3" style="left: 900px;">
+            Challenge 3: THE PERSONA
+        </div>
+        <div class="trampoline challenge-trigger" data-challenge-id="4" style="left: 1200px;">
+            Challenge 4: THE FORMAT
+        </div>
+        <div class="trampoline challenge-trigger" data-challenge-id="5" style="left: 1600px; background-color: #d946ef; width: 128px; height: 64px;">
+            FINAL BOSS CHALLENGE!
+        </div>
+
+        <!-- The Ground - MODIFICATO -->
+        <div id="ground-container" class="absolute bottom-0 left-0 flex flex-row z-0">
+            <!-- Il terreno sarà generato qui dal JavaScript -->
+        </div>
+    </div>
+
+    <!-- Modal for Challenges (Hidden) -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-70 z-40 hidden"></div>
+    <div id="challenge-modal" class="fixed top-1/2 left-1/2 w-11/12 max-w-2xl -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg z-50 hidden modal-pixel">
+        <div id="modal-title" class="p-4 text-xl modal-header-pixel"></div>
+        <div class="p-6 text-gray-800 space-y-4">
+            <div id="modal-concept" class="text-sm"></div>
+            <div class="bg-red-100 border-2 border-red-500 p-3 rounded-lg">
+                <h3 class="font-bold text-red-700">Weak Prompt (Zally falls!):</h3>
+                <p id="modal-bad-prompt" class="text-sm mt-1 font-mono"></p>
+            </div>
+            <div class="bg-green-100 border-2 border-green-600 p-3 rounded-lg">
+                <h3 class="font-bold text-green-800">Strong Prompt (Super Jump!):</h3>
+                <p id="modal-good-prompt" class="text-sm mt-1 font-mono"></p>
+            </div>
+            <div id="modal-takeaway" class="pt-4 text-sm font-bold"></div>
+        </div>
+        <div class="p-4 bg-gray-100 border-t-4 border-black flex justify-end">
+            <button id="close-modal-btn" class="modal-button-pixel bg-blue-500 text-white px-6 py-2 rounded-lg">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const challenges = [
+            { id: 1, title: "Challenge 1: The TASK", concept: "The first superpower is telling Gemini WHAT to do. Always start with a strong action verb. Don't be vague!", badPrompt: "This supplier email...", goodPrompt: "'SUMMARIZE' this supplier email into 3 bullet points.", takeaway: "Always start with a TASK: Summarize, Write, List, Analyze, Translate, Compare..." },
+            { id: 2, title: "Challenge 2: The CONTEXT", concept: "Gemini doesn't know what you know. Give it the background! More context = more useful response.", badPrompt: "Write an email to a supplier who is late.", goodPrompt: "Write an email to a late supplier. 'CONTEXT: The PO is 12345, original delivery date was Oct 25. This is the second time this has happened.'", takeaway: "Always include CONTEXT: numbers, dates, POs, previous emails, your final goal." },
+            { id: 3, title: "Challenge 3: The PERSONA", concept: "Tell Gemini who it should be. This controls the tone, style, and level of detail in the response.", badPrompt: "Write the email from before.", goodPrompt: "'ACT AS a professional but friendly YF&K Operations Specialist.' Write the email from before.", takeaway: "Assign a PERSONA: 'Act as...', 'You are a data analyst...', 'Speak like a manager...'" }, // <-- Corretto qui (rimosso "ci ")
+            { id: 4, title: "Challenge 4: The FORMAT", concept: "Don't just accept a wall of text. Tell Gemini HOW you want the answer.", badPrompt: "Analyze these ticket data.", goodPrompt: "Analyze these ticket data and 'CREATE A TABLE' with 3 columns: 'Ticket Category', 'Number of Tickets', 'Average Resolution Time'.", takeaway: "Define the FORMAT: 'Give me a bulleted list', 'Create a table', 'Write an email draft'." },
+            { id: 5, title: "BOSS CHALLENGE: The Super-Prompt!", concept: "You've unlocked all the powers! Now let's combine them for a 'Boss Level' prompt. This is P.T.C.F. (Persona, Task, Context, Format) in action.", badPrompt: "Prep a report on suppliers.", goodPrompt: "'PERSONA:' Act as my Ops assistant. 'CONTEXT:' I need to update my Team Lead on issues with suppliers A, B, and C. 'TASK:' Analyze the issues and identify the top 3 urgent risks. 'FORMAT:' Write an email draft to my lead, with the 3 risks as bullet points and suggest one action for each.", takeaway: "WORLD 1 COMPLETE! You've learned to combine P.T.C.F. for effective prompts!" }
+        ];
+
+        // --- All the JavaScript logic for movement and modals ---
+
+        // --- NUOVO CODICE PER GENERARE IL TERRENO ---
+        function generateGround() {
+            const groundContainer = document.getElementById('ground-container');
+            const numBlocks = 32; // Quanti blocchi di terreno
+            
+            for (let i = 0; i < numBlocks; i++) {
+                const block = document.createElement('div'); // <-- Corretto qui (rimosso "V ")
+                block.className = 'ground-block';
+                groundContainer.appendChild(block);
+            }
+        }
+        generateGround(); // Chiama la funzione per costruire il terreno
+        // --- FINE NUOVO CODICE ---
+
+
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modal = document.getElementById('challenge-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const challengeTriggers = document.querySelectorAll('.challenge-trigger');
+        const zally = document.getElementById('zally');
+        const modalTitle = document.getElementById('modal-title');
+        const modalConcept = document.getElementById('modal-concept');
+        const modalBadPrompt = document.getElementById('modal-bad-prompt');
+        const modalGoodPrompt = document.getElementById('modal-good-prompt');
+        const modalTakeaway = document.getElementById('modal-takeaway');
+
+        let isModalOpen = false;
+
+        function openModal(challenge) {
+            isModalOpen = true;
+            modalTitle.textContent = challenge.title;
+            modalConcept.textContent = challenge.concept;
+            modalBadPrompt.textContent = challenge.badPrompt;
+            modalGoodPrompt.textContent = challenge.goodPrompt;
+            modalTakeaway.textContent = challenge.takeaway;
+  M           modalOverlay.classList.remove('hidden');
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            isModalOpen = false;
+            modalOverlay.classList.add('hidden');
+            modal.classList.add('hidden');
+        }
+
+        challengeTriggers.forEach(trigger => {
+            trigger.addEventListener('click', (event) => {
+                event.stopPropagation();
+                zally.classList.add('jumping');
+                const challengeId = parseInt(trigger.dataset.challengeId);
+                const challengeData = challenges.find(c => c.id === challengeId);
+                if (challengeData) {
+                    setTimeout(() => {
+                        openModal(challengeData);
+Ci                     zally.classList.remove('jumping');
+                    }, 400); 
+                }
+            });
+        });
+
+        closeModalBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', closeModal); // <-- Corretto qui (rimosso "V ")
+
+        const gameWorld = document.getElementById('game-world');
+        let zallyPositionX = 80;
+        const moveSpeed = 15;
+        const worldWidth = 2000;
+        let screenWidth = window.innerWidth;
+        
+        window.addEventListener('resize', () => { screenWidth = window.innerWidth; });
+
+ci       document.addEventListener('keydown', (e) => {
+            if (isModalOpen) return;
+
+            if (e.key === 'ArrowRight') {
+                zallyPositionX = Math.min(zallyPositionX + moveSpeed, worldWidth - zally.offsetWidth - 10); // <-- Corretto qui (rimosso "V ")
+                zally.style.transform = 'scaleX(1)'; // Face right
+            } else if (e.key === 'ArrowLeft') {
+                zallyPositionX = Math.max(zallyPositionX - moveSpeed, 0);
+                zally.style.transform = 'scaleX(-1)'; // Face left (flipped)
+            }
+
+            zally.style.left = zallyPositionX + 'px';
+
+            let cameraLookAhead = screenWidth / 3;
+            let targetScrollLeft = zallyPositionX - cameraLookAhead;
+    ci       targetScrollLeft = Math.max(0, targetScrollLeft);
+            targetScrollLeft = Math.min(targetScrollLeft, worldWidth - screenWidth);
+            document.documentElement.scrollLeft = targetScrollLeft;
+        });
+    </script>
+</body>
+</html>
+
