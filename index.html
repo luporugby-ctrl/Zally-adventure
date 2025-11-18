@@ -26,22 +26,20 @@
         #zally {
             width: 64px; height: 64px;
             position: absolute; 
-            bottom: 60px; /* ALLINEATO SOPRA IL TERRENO */
+            bottom: 60px; /* Allineato sopra il terreno */
             left: 80px;
             z-index: 10;
             transition: left 0.1s linear; 
-            /* Image setup */
             background-image: url('zally.png'); 
             background-size: contain; background-repeat: no-repeat; background-position: center;
         }
-        /* Fallback if image is missing */
         #zally:empty { background-color: transparent; } 
         
         /* Jump Animation */
         @keyframes zally-jump {
-            0% { bottom: 60px; } /* Inizio salto (nuova altezza) */
-            50% { bottom: 180px; } 
-            100% { bottom: 60px; } /* Fine salto (nuova altezza) */
+            0% { bottom: 60px; } 
+            50% { bottom: 200px; } /* Salto bello alto */
+            100% { bottom: 60px; } 
         }
         .jumping { animation: zally-jump 0.5s ease-out; }
 
@@ -49,7 +47,7 @@
         .trampoline {
             width: 96px; height: 48px; background-color: #2dbd2d; border: 4px solid black;
             position: absolute; 
-            bottom: 60px; /* ALLINEATO SOPRA IL TERRENO */
+            bottom: 60px; /* Allineato sopra il terreno */
             display: flex; align-items: center; justify-content: center;
             padding: 8px; text-align: center; font-size: 10px; line-height: 1.2;
             z-index: 5;
@@ -59,7 +57,7 @@
             border-radius: 20px; position: absolute; top: 100px; z-index: 1;
         }
         
-        /* --- MODAL (POP UP) STYLES --- */
+        /* --- MODAL --- */
         #modal-overlay {
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -71,7 +69,7 @@
             width: 90%; max-width: 650px;
             background: white; border: 4px solid black; box-shadow: 8px 8px 0px black;
             z-index: 1001;
-            font-family: 'Inter', sans-serif; /* Readable font for text */
+            font-family: 'Inter', sans-serif;
         }
         .modal-header {
             font-family: 'Press Start 2P', cursive; border-bottom: 4px solid black;
@@ -80,12 +78,11 @@
         }
         .modal-body { padding: 20px; color: #333; max-height: 70vh; overflow-y: auto; }
         
-        /* Comparison Boxes */
         .prompt-box {
             border: 2px solid black; padding: 12px; margin-top: 10px; border-radius: 8px;
         }
-        .bad-box { background-color: #fecaca; border-color: #ef4444; color: #7f1d1d; } /* Red */
-        .good-box { background-color: #dcfce7; border-color: #16a34a; color: #14532d; } /* Green */
+        .bad-box { background-color: #fecaca; border-color: #ef4444; color: #7f1d1d; }
+        .good-box { background-color: #dcfce7; border-color: #16a34a; color: #14532d; }
         
         .prompt-text { font-family: monospace; margin-top: 5px; font-weight: bold; }
 
@@ -147,7 +144,6 @@
         const modal = document.getElementById('challenge-modal');
         const overlay = document.getElementById('modal-overlay');
         
-        // Generate Ground
         const groundContainer = document.getElementById('ground-container');
         for (let i = 0; i < 50; i++) {
             const block = document.createElement('div');
@@ -155,33 +151,32 @@
             groundContainer.appendChild(block);
         }
 
-        // --- ENGLISH CHALLENGES WITH COMPARISON ---
         const challenges = [
             { 
                 id: 1, 
                 title: "Challenge 1: THE TASK", 
-                concept: "The first superpower is telling Gemini WHAT to do. Always start with a strong action verb. Don't be vague!", 
+                concept: "The first superpower is telling Gemini WHAT to do. Always start with a strong action verb.", 
                 badPrompt: "\"This supplier email...\"", 
                 goodPrompt: "\"'SUMMARIZE' this supplier email into 3 bullet points.\"" 
             },
             { 
                 id: 2, 
                 title: "Challenge 2: THE CONTEXT", 
-                concept: "Gemini doesn't know what you know. Give it the background! More context = more useful response.", 
+                concept: "Gemini doesn't know what you know. Give it the background!", 
                 badPrompt: "\"Write an email to a supplier who is late.\"", 
-                goodPrompt: "\"Write an email to a late supplier. 'CONTEXT: The PO is 12345, original delivery date was Oct 25. This is the second time.'\"" 
+                goodPrompt: "\"Write an email to a late supplier. 'CONTEXT: The PO is 12345, original delivery date was Oct 25.'\"" 
             },
             { 
                 id: 3, 
                 title: "Challenge 3: THE PERSONA", 
-                concept: "Tell Gemini who it should be. This controls the tone, style, and level of detail.", 
+                concept: "Tell Gemini who it should be to control the tone.", 
                 badPrompt: "\"Write the email from before.\"", 
                 goodPrompt: "\"'ACT AS a professional but friendly Operations Specialist.' Write the email from before.\"" 
             },
             { 
                 id: 4, 
                 title: "Challenge 4: THE FORMAT", 
-                concept: "Don't just accept a wall of text. Tell Gemini HOW you want the answer.", 
+                concept: "Don't just accept a wall of text. Define the output.", 
                 badPrompt: "\"Analyze these ticket data.\"", 
                 goodPrompt: "\"Analyze these ticket data and 'CREATE A TABLE' with 3 columns: Category, Count, Resolution Time.\"" 
             },
@@ -190,19 +185,19 @@
                 title: "BOSS CHALLENGE: The Super-Prompt!", 
                 concept: "Combine all powers: P.T.C.F. (Persona, Task, Context, Format).", 
                 badPrompt: "\"Prep a report on suppliers.\"", 
-                goodPrompt: "\"'PERSONA: Act as my Ops assistant. CONTEXT: I need to update my Lead. TASK: Analyze issues. FORMAT: Email draft with bullet points.'\"" 
+                goodPrompt: "\"PERSONA: Act as my Ops assistant. CONTEXT: I need to update my Lead. TASK: Analyze issues. FORMAT: Email draft.\"" 
             }
         ];
 
-        // Game State
         let zallyX = 80;
         let isModalOpen = false;
         let isJumping = false;
+        let currentTriggerElement = null; // IMPORTANTE: Tiene traccia di quale trampolino stiamo toccando
 
         // --- MOVEMENT LOGIC ---
         document.addEventListener('keydown', (e) => {
             if (isModalOpen) {
-                if (e.key === 'Escape') closeModal(); // Emergency Exit
+                if (e.key === 'Escape') closeModal(); 
                 return; 
             }
 
@@ -214,7 +209,6 @@
                 zally.style.transform = 'scaleX(-1)'; 
             }
 
-            // Boundaries
             if(zallyX < 0) zallyX = 0;
             if(zallyX > 1900) zallyX = 1900;
 
@@ -233,29 +227,27 @@
                 const r1 = zally.getBoundingClientRect();
                 const r2 = trigger.getBoundingClientRect();
 
-                // Simple overlap formula
                 const overlap = !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
 
                 if (overlap) {
+                    // Salviamo l'elemento che abbiamo toccato per calcolare il teletrasporto dopo
+                    currentTriggerElement = trigger; 
                     triggerJump(trigger.dataset.challengeId);
                 }
             });
         }
 
-        // --- ACTION LOGIC ---
         function triggerJump(challengeId) {
             isJumping = true;
             zally.classList.add('jumping');
 
-            // Open modal mid-jump
             setTimeout(() => {
                 openModal(parseInt(challengeId));
-            }, 300);
+            }, 250); // Apre la modale mentre sale
 
-            // Reset jump state
+            // Rimuoviamo la classe jumping ma isJumping resta true finché non chiudiamo la modale
             setTimeout(() => {
                 zally.classList.remove('jumping');
-                isJumping = false;
             }, 500);
         }
 
@@ -263,13 +255,11 @@
             const data = challenges.find(c => c.id === id);
             if(!data) return;
 
-            // Populate Data
             document.getElementById('modal-title').innerText = data.title;
             document.getElementById('modal-concept').innerText = data.concept;
-            document.getElementById('modal-bad-prompt').innerText = data.badPrompt; // RED BOX
-            document.getElementById('modal-good-prompt').innerText = data.goodPrompt; // GREEN BOX
+            document.getElementById('modal-bad-prompt').innerText = data.badPrompt;
+            document.getElementById('modal-good-prompt').innerText = data.goodPrompt;
 
-            // Show Modal (CSS Force)
             modal.style.display = 'block';
             overlay.style.display = 'block';
             
@@ -281,9 +271,27 @@
             overlay.style.display = 'none';
             isModalOpen = false;
             
-            // Push Zally forward to avoid loop
-            zallyX += 60; 
-            zally.style.left = zallyX + 'px';
+            // --- CORREZIONE "DOPPIO SALTO" ---
+            // Se sappiamo quale trampolino ha toccato, spostiamo Zally 
+            // esattamente alla destra di quel trampolino + un margine di sicurezza (20px)
+            if (currentTriggerElement) {
+                // Calcoliamo la posizione finale del trampolino (left + width)
+                let trampolineRightEdge = parseInt(currentTriggerElement.style.left) + 96; // 96 è la larghezza fissa CSS
+                zallyX = trampolineRightEdge + 20; 
+                
+                // Aggiorniamo subito la posizione
+                zally.style.left = zallyX + 'px';
+                
+                // Puliamo la variabile
+                currentTriggerElement = null;
+            } else {
+                // Fallback di sicurezza se qualcosa va storto
+                zallyX += 100;
+                zally.style.left = zallyX + 'px';
+            }
+
+            // Sblocchiamo il salto solo ORA che siamo al sicuro
+            isJumping = false; 
         }
 
         document.getElementById('close-modal-btn').addEventListener('click', closeModal);
