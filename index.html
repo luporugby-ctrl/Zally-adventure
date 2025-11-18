@@ -8,179 +8,250 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Press Start 2P', cursive; background-color: #5c94fc; overflow: hidden; }
+        /* --- STILI BASE --- */
+        body { font-family: 'Press Start 2P', cursive; background-color: #5c94fc; overflow: hidden; margin: 0; padding: 0; }
         .game-world { width: 2000px; height: 100vh; position: relative; }
         
-        /* STILE DEL TERRENO */
+        /* --- TERRENO --- */
         .ground-container {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            display: flex; /* Forza la riga orizzontale */
-            flex-direction: row;
-            z-index: 0;
+            position: absolute; bottom: 0; left: 0;
+            display: flex; flex-direction: row; z-index: 0;
         }
         .ground-block {
-            background-color: #e27525;
-            border: 4px solid black;
-            width: 64px;
-            height: 64px;
-            flex-shrink: 0; /* Impedisce ai blocchi di schiacciarsi */
+            background-color: #e27525; border: 4px solid black;
+            width: 64px; height: 64px; flex-shrink: 0;
         }
 
+        /* --- ZALLY --- */
         #zally {
             width: 64px; height: 64px;
             position: absolute; bottom: 64px; left: 80px;
             z-index: 10;
-            transition: left 0.1s linear, transform 0.2s ease-out;
-            /* Immagine o Placeholder colorato */
-            background-color: transparent; 
+            transition: left 0.1s linear; /* Tolto transform dalla transition per evitare conflitti col salto */
+            /* Immagine */
             background-image: url('zally.png'); 
             background-size: contain; background-repeat: no-repeat; background-position: center;
         }
+        /* Se l'immagine non c'è, mostriamo un blocco colorato temporaneo */
+        #zally:empty { background-color: transparent; } 
         
+        /* Animazione Salto */
         @keyframes zally-jump {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-100px); } /* Salto più alto */
-            100% { transform: translateY(0); }
+            0% { bottom: 64px; }
+            50% { bottom: 180px; } 
+            100% { bottom: 64px; }
         }
         .jumping { animation: zally-jump 0.5s ease-out; }
 
+        /* --- ELEMENTI GIOCO --- */
         .trampoline {
             width: 96px; height: 48px; background-color: #2dbd2d; border: 4px solid black;
-            position: absolute; bottom: 64px; cursor: pointer;
+            position: absolute; bottom: 64px; 
             display: flex; align-items: center; justify-content: center;
             padding: 8px; text-align: center; font-size: 10px; line-height: 1.2;
+            z-index: 5;
         }
         .cloud {
             width: 128px; height: 64px; background-color: white; border: 4px solid black;
-            border-radius: 20px; position: absolute; top: 100px;
+            border-radius: 20px; position: absolute; top: 100px; z-index: 1;
         }
         
-        /* MODAL STYLES */
-        .modal-pixel { font-family: 'Inter', sans-serif; border: 4px solid black; box-shadow: 8px 8px 0px black; }
-        .modal-header-pixel { font-family: 'Press Start 2P', cursive; border-bottom: 4px solid black; background-color: #f87d00; color: white; text-shadow: 2px 2px 0px black; }
+        /* --- MODALE (POP UP) - Stile Forzato --- */
+        #modal-overlay {
+            display: none; /* Nascosto di base */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000; /* Altissimo z-index */
+        }
+        #challenge-modal {
+            display: none; /* Nascosto di base */
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 600px;
+            background: white; border: 4px solid black; box-shadow: 8px 8px 0px black;
+            z-index: 1001; /* Sopra l'overlay */
+            font-family: 'Inter', sans-serif;
+        }
+        .modal-header {
+            font-family: 'Press Start 2P', cursive; border-bottom: 4px solid black;
+            background-color: #f87d00; color: white; padding: 15px;
+            text-shadow: 2px 2px 0px black;
+        }
+        .modal-body { padding: 20px; color: #333; }
+        .modal-box {
+            border: 2px solid black; padding: 10px; margin-top: 10px; border-radius: 5px;
+            background-color: #dcfce7; /* Verde chiaro */
+        }
+        .btn-pixel {
+            font-family: 'Press Start 2P', cursive; border: 4px solid black;
+            background-color: #3b82f6; color: white; padding: 10px 20px;
+            cursor: pointer; box-shadow: 4px 4px 0px black;
+            margin: 20px; float: right;
+        }
+        .btn-pixel:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px black; }
     </style>
 </head>
 <body class="m-0 p-0">
 
     <div class="fixed top-0 left-0 w-full bg-black text-white p-4 z-50 text-center text-sm md:text-base">
-        Zally's Adventure - Usa ⬅️ e ➡️ per muoverti. Salta sulle pedane!
+        Zally's Adventure - Usa ⬅️ e ➡️. Salta sulle pedane verdi!
     </div>
 
     <div class="game-world" id="game-world">
         <div class="cloud" style="left: 200px; top: 150px;"></div>
         <div class="cloud" style="left: 700px; top: 100px; width: 160px;"></div>
+        <div class="cloud" style="left: 1200px; top: 120px;"></div>
         
         <div id="zally"></div>
 
         <div class="trampoline challenge-trigger" data-challenge-id="1" style="left: 300px;">Challenge 1: TASK</div>
-        <div class="trampoline challenge-trigger" data-challenge-id="2" style="left: 600px;">Challenge 2: CONTEXT</div>
-        <div class="trampoline challenge-trigger" data-challenge-id="3" style="left: 900px;">Challenge 3: PERSONA</div>
-        <div class="trampoline challenge-trigger" data-challenge-id="4" style="left: 1200px;">Challenge 4: FORMAT</div>
-        <div class="trampoline challenge-trigger" data-challenge-id="5" style="left: 1600px; background-color: #d946ef;">FINAL BOSS</div>
+        <div class="trampoline challenge-trigger" data-challenge-id="2" style="left: 700px;">Challenge 2: CONTEXT</div>
+        <div class="trampoline challenge-trigger" data-challenge-id="3" style="left: 1100px;">Challenge 3: PERSONA</div>
+        <div class="trampoline challenge-trigger" data-challenge-id="4" style="left: 1500px;">Challenge 4: FORMAT</div>
+        <div class="trampoline challenge-trigger" data-challenge-id="5" style="left: 1800px; background-color: #d946ef;">FINAL BOSS</div>
 
         <div class="ground-container" id="ground-container"></div>
     </div>
 
-    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-70 z-40 hidden"></div>
-    <div id="challenge-modal" class="fixed top-1/2 left-1/2 w-11/12 max-w-2xl -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg z-50 hidden modal-pixel">
-        <div id="modal-title" class="p-4 text-xl modal-header-pixel"></div>
-        <div class="p-6 text-gray-800 space-y-4">
-            <p id="modal-concept" class="text-sm font-bold"></p>
-            <div class="bg-green-100 border-2 border-green-600 p-3 rounded-lg">
-                <p id="modal-good-prompt" class="text-sm font-mono"></p>
+    <div id="modal-overlay"></div>
+    <div id="challenge-modal">
+        <div id="modal-title" class="modal-header">Titolo</div>
+        <div class="modal-body">
+            <p id="modal-concept" style="font-weight: bold; margin-bottom: 10px;"></p>
+            <div class="modal-box">
+                <strong>✅ Strong Prompt:</strong>
+                <p id="modal-good-prompt" style="font-family: monospace; margin-top: 5px;"></p>
             </div>
+            <button id="close-modal-btn" class="btn-pixel">OK, Capito!</button>
         </div>
-        <div class="p-4 flex justify-end"><button id="close-modal-btn" class="bg-blue-500 text-white px-6 py-2 border-4 border-black">Chiudi</button></div>
     </div>
 
     <script>
-        // Generazione Terreno
+        // --- SETUP INIZIALE ---
+        const zally = document.getElementById('zally');
+        const gameWorld = document.getElementById('game-world');
+        const modal = document.getElementById('challenge-modal');
+        const overlay = document.getElementById('modal-overlay');
+        
+        // Generiamo il terreno
         const groundContainer = document.getElementById('ground-container');
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 50; i++) {
             const block = document.createElement('div');
             block.className = 'ground-block';
             groundContainer.appendChild(block);
         }
 
-        // Dati Challenges
+        // Dati delle sfide
         const challenges = [
-            { id: 1, title: "Challenge 1: TASK", concept: "Inizia sempre con un verbo d'azione!", goodPrompt: "Scrivi, Riassumi, Traduci, Analizza..." },
-            { id: 2, title: "Challenge 2: CONTEXT", concept: "Dai a Gemini il contesto.", goodPrompt: "Contesto: Sono un Project Manager..." },
-            { id: 3, title: "Challenge 3: PERSONA", concept: "Chi deve essere Gemini?", goodPrompt: "Agisci come un Esperto di Marketing..." },
-            { id: 4, title: "Challenge 4: FORMAT", concept: "Come vuoi la risposta?", goodPrompt: "Crea una tabella / Lista puntata..." },
-            { id: 5, title: "BOSS FIGHT", concept: "Usa tutto insieme (P.T.C.F.)!", goodPrompt: "Persona + Task + Contesto + Formato" }
+            { id: 1, title: "Challenge 1: THE TASK", concept: "Non essere vago. Usa verbi d'azione chiari!", goodPrompt: "'RIASSUMI' questa email in 3 punti." },
+            { id: 2, title: "Challenge 2: THE CONTEXT", concept: "L'AI non legge nel pensiero. Dai i dettagli.", goodPrompt: "'CONTESTO: La consegna era prevista per il 25 Ottobre...'" },
+            { id: 3, title: "Challenge 3: THE PERSONA", concept: "Assegna un ruolo per cambiare il tono.", goodPrompt: "'AGISCI come un Senior Project Manager...'" },
+            { id: 4, title: "Challenge 4: THE FORMAT", concept: "Scegli come vuoi leggere i dati.", goodPrompt: "'CREA UNA TABELLA con colonne: Data, Problema, Soluzione'" },
+            { id: 5, title: "BOSS: SUPER PROMPT", concept: "Combina tutto: P.T.C.F.!", goodPrompt: "Persona + Task + Context + Format" }
         ];
 
-        // Elementi
-        const zally = document.getElementById('zally');
-        const modal = document.getElementById('challenge-modal');
-        const overlay = document.getElementById('modal-overlay');
+        // Variabili di stato
         let zallyX = 80;
         let isModalOpen = false;
+        let isJumping = false;
 
-        // Movimento
+        // --- LOGICA MOVIMENTO ---
         document.addEventListener('keydown', (e) => {
-            if (isModalOpen) return;
-            
+            // 1. Se la modale è aperta, permetti solo ESC per chiudere (Sicurezza)
+            if (isModalOpen) {
+                if (e.key === 'Escape') closeModal();
+                return; // Blocca qualsiasi altro movimento
+            }
+
+            // 2. Movimento orizzontale
             if (e.key === 'ArrowRight') {
                 zallyX += 15;
-                zally.style.transform = 'scaleX(1)'; 
+                zally.style.transform = 'scaleX(1)'; // Faccia a destra
             } else if (e.key === 'ArrowLeft') {
                 zallyX -= 15;
-                zally.style.transform = 'scaleX(-1)';
+                zally.style.transform = 'scaleX(-1)'; // Faccia a sinistra
             }
-            
-            // Limiti movimento
+
+            // 3. Limiti mondo
             if(zallyX < 0) zallyX = 0;
             if(zallyX > 1900) zallyX = 1900;
 
+            // 4. Applica posizione
             zally.style.left = zallyX + 'px';
             
-            // Camera Follow
+            // 5. Camera Follow (Scorrimento pagina)
             window.scrollTo({ left: zallyX - window.innerWidth / 3, behavior: 'auto' });
 
-            // Controllo Collisioni (Auto-Salto)
-            checkCollisions();
+            // 6. Controllo collisioni (solo se non sta già saltando)
+            if (!isJumping) {
+                checkCollisions();
+            }
         });
 
+        // --- LOGICA COLLISIONI ---
         function checkCollisions() {
             const triggers = document.querySelectorAll('.challenge-trigger');
+            
             triggers.forEach(trigger => {
-                const rect1 = zally.getBoundingClientRect();
-                const rect2 = trigger.getBoundingClientRect();
+                // Coordinate rettangolari
+                const r1 = zally.getBoundingClientRect();
+                const r2 = trigger.getBoundingClientRect();
 
-                // Semplice rilevamento sovrapposizione
-                if (!(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom)) {
-                    // Se tocca, apri modale solo se non stiamo già saltando
-                    if (!zally.classList.contains('jumping')) {
-                        zally.classList.add('jumping');
-                        const id = parseInt(trigger.dataset.challengeId);
-                        setTimeout(() => openModal(id), 300); // Apri modale a metà salto
-                    }
+                // Semplice formula di sovrapposizione
+                const overlap = !(r1.right < r2.left || 
+                                r1.left > r2.right || 
+                                r1.bottom < r2.top || 
+                                r1.top > r2.bottom);
+
+                if (overlap) {
+                    triggerJump(trigger.dataset.challengeId);
                 }
             });
         }
 
+        // --- SALTO E APERTURA MODALE ---
+        function triggerJump(challengeId) {
+            isJumping = true;
+            zally.classList.add('jumping'); // Avvia animazione CSS
+
+            // A metà salto (300ms) apriamo la modale
+            setTimeout(() => {
+                openModal(parseInt(challengeId));
+            }, 300);
+
+            // Alla fine del salto (500ms) resettiamo lo stato di salto
+            setTimeout(() => {
+                zally.classList.remove('jumping');
+                isJumping = false;
+            }, 500);
+        }
+
         function openModal(id) {
             const data = challenges.find(c => c.id === id);
-            if(!data) return;
+            if(!data) return; // Se non trova l'ID, esce senza bloccare
+
+            // Riempi i dati
             document.getElementById('modal-title').innerText = data.title;
             document.getElementById('modal-concept').innerText = data.concept;
             document.getElementById('modal-good-prompt').innerText = data.goodPrompt;
-            modal.classList.remove('hidden');
-            overlay.classList.remove('hidden');
-            isModalOpen = true;
+
+            // MOSTRA LA MODALE (Metodo sicuro CSS)
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+            
+            isModalOpen = true; // ORA blocchiamo il movimento
         }
 
         function closeModal() {
-            modal.classList.add('hidden');
-            overlay.classList.add('hidden');
-            isModalOpen = false;
-            zally.classList.remove('jumping');
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+            isModalOpen = false; // Sblocchiamo il movimento
+            
+            // Sposta Zally leggermente avanti per non ricadere subito sulla collisione
+            zallyX += 50; 
+            zally.style.left = zallyX + 'px';
         }
 
+        // Event Listeners per chiusura
         document.getElementById('close-modal-btn').addEventListener('click', closeModal);
         overlay.addEventListener('click', closeModal);
     </script>
